@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:chatapp_with_firebase/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -16,6 +20,30 @@ class _RegisterState extends State<Register> {
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController passcontroller = TextEditingController();
   TextEditingController confpasscontroller = TextEditingController();
+  final ImagePicker imageimp = ImagePicker();
+  XFile? _profileImage;
+  Uint8List? _webimage;
+  Future<void> pickimage() async {
+    final pickedfile = await imageimp.pickImage(source: ImageSource.gallery);
+    if (pickedfile != null) {
+      if (kIsWeb) {
+        Uint8List imagebytes = await pickedfile.readAsBytes();
+        setState(() {
+          _webimage = imagebytes;
+          _profileImage = pickedfile;
+        });
+      } else {
+        setState(() {
+          _profileImage = pickedfile;
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Image is Required")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -39,7 +67,23 @@ class _RegisterState extends State<Register> {
               ),
               SizedBox(height: 40),
               Image.asset("assets/images/image2.jpg", width: 200, height: 200),
-              SizedBox(height: 80),
+              GestureDetector(
+                onTap: pickimage,
+                child: CircleAvatar(
+                  backgroundColor: Colors.teal,
+                  backgroundImage: _profileImage != null
+                      ? (kIsWeb
+                            ? MemoryImage(_webimage!)
+                            : FileImage(File(_profileImage!.path))
+                                  as ImageProvider)
+                      : null,
+                  child: _profileImage == null
+                      ? Icon(Icons.camera_alt, size: 40, color: Colors.white)
+                      : null,
+                  radius: 50,
+                ),
+              ),
+              SizedBox(height: 30),
               TextField(
                 controller: namecontroller,
                 decoration: InputDecoration(
@@ -54,6 +98,7 @@ class _RegisterState extends State<Register> {
                 ),
               ),
               SizedBox(height: 10),
+
               TextField(
                 controller: emailcontroller,
                 decoration: InputDecoration(
@@ -114,6 +159,7 @@ class _RegisterState extends State<Register> {
                       email: emailcontroller.text,
                       password: passcontroller.text,
                       confirmpassword: confpasscontroller.text,
+                      prfileimg: _profileImage,
                       context: context,
                     );
                   },

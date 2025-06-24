@@ -1,5 +1,8 @@
+import 'package:chatapp_with_firebase/change_pass.dart';
+import 'package:chatapp_with_firebase/chat_list.dart';
 import 'package:chatapp_with_firebase/firebase_options.dart';
 import 'package:chatapp_with_firebase/splash.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
